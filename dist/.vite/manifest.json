@@ -1,0 +1,11 @@
+{
+  "client-entry.tsx": {
+    "file": "assets/client-entry-BGmxPfql.js",
+    "name": "client-entry",
+    "src": "client-entry.tsx",
+    "isEntry": true,
+    "css": [
+      "assets/client-entry-HupOsEJb.css"
+    ]
+  }
+}
