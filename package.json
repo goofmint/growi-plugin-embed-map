@@ -1,7 +1,7 @@
 {
-  "name": "growi-plugin-remark-youtube",
+  "name": "growi-plugin-embed-map",
   "version": "1.0.0",
-  "description": "GROWI plugin template for script",
+  "description": "GROWI plugin embed a map in the page",
   "license": "MIT",
   "keywords": [
     "growi",

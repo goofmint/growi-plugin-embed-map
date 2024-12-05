@@ -16,6 +16,10 @@ $map(Tokyo tower)
 $map(latitude=35.6585805,longitude=139.7454329)
 ```
 
+## Notice
+
+This plugin does not support preview in editor.
+
 ## License
 
 MIT

@@ -54,43 +54,41 @@ const getGeoPoint = async(address: string): Promise<GeoPoint | null> => {
 
 export const plugin: Plugin = function() {
   return (tree) => {
-    visit(tree, (node) => {
+    visit(tree, 'leafGrowiPluginDirective', (node) => {
       const n = node as unknown as GrowiNode;
+      let map: null | L.Map = null;
       try {
         const domId = `map-${Math.random().toString(36).slice(-8)}`;
-        if (n.type === 'leafGrowiPluginDirective' && n.name === 'map') {
-          const address = Object.keys(n.attributes)[0];
-          let { latitude, longitude } = n.attributes;
-          n.type = 'html';
-          n.value = `<div id="${domId}" style="height: 400px; width: 100%"></div>`;
-          let map: null | L.Map = null;
-          const id = setInterval(async() => {
-            const mapDom = document.querySelector(`#${domId}`);
-            if (mapDom == null) {
-              return;
+        const address = Object.keys(n.attributes)[0];
+        let { latitude, longitude } = n.attributes;
+        n.type = 'html';
+        n.value = `<div id="${domId}" style="height: 400px; width: 100%"></div>`;
+        const id = setInterval(async() => {
+          const mapDom = document.querySelector(`#${domId}`);
+          if (mapDom == null) {
+            return;
+          }
+          clearInterval(id);
+          if (latitude == null || longitude == null) {
+            const geoPoint = await getGeoPoint(address);
+            if (geoPoint === null) {
+              clearInterval(id);
+              throw new Error(`Failed to get geo point ${address}`);
             }
-            clearInterval(id);
-            if (map != null) {
-              return;
-            }
-            if (latitude == null || longitude == null) {
-              const geoPoint = await getGeoPoint(address);
-              if (geoPoint === null) {
-                clearInterval(id);
-                throw new Error(`Failed to get geo point ${address}`);
-              }
-              latitude = geoPoint.latitude;
-              longitude = geoPoint.longitude;
-            }
-            map = L.map(domId).setView([parseFloat(latitude), parseFloat(longitude)], 13);
+            latitude = geoPoint.latitude;
+            longitude = geoPoint.longitude;
+          }
+          if (map === null) {
+            map = L.map(domId);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
               attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
             }).addTo(map);
-            const marker = L.marker([parseFloat(latitude), parseFloat(longitude)]);
-            marker.bindPopup(address).openPopup();
-            marker.addTo(map);
-          }, 1000);
-        }
+          }
+          map.setView([parseFloat(latitude), parseFloat(longitude)], 13);
+          const marker = L.marker([parseFloat(latitude), parseFloat(longitude)]);
+          marker.bindPopup(address).openPopup();
+          marker.addTo(map);
+        }, 1000);
       }
       catch (e) {
         n.type = 'html';
